@@ -1,0 +1,153 @@
+---
+title: 'blog fubruary 2023'
+metaTitle: 'Next.js + Markdown'
+metaDesc: 'เพิ่มลูกเล่น Web Blog ของตัวเอง'
+mainImage: /blog-01.jpg
+date: '22 Fubruary 2023'
+tags: ['Nextjs','Markdown']
+---
+
+หลังจากที่เขียน Web Blog ของตัวเองเสร็จผมก็ได้มีโอกาสไปดู Web Blog ของคนอื่นดูเเล้วรู้สึกว่าอย่างหนึ่งที่ผมถูกใจ คือ การเพิ่มสีสันไห้ Code ตัวอย่างใน Blog ของผม
+
+
+Tech Stack ในการทำ Code ไห้มีสีสัน
+* Next.js เพิ่มเติมจาก Web Blog เดิมที่ผมเขียน 
+* mdx-bundler ของเดิมผมใช้ markdown-it 
+* tailwindcss CSS Framework ที่ใช้ครับ
+* rehype-prism-plus  พระเอกของงานนี้
+
+##  แหล่งข้อมูล
+* [mdx-bundler 🦤](https://github.com/kentcdodds/mdx-bundler/blob/main/README.md) ตัวอย่างใช้งาน mdx-bundler
+
+
+## Coding 💻 
+
+Create Next.js
+```bash
+npx create-next-app@latest boonyaritblog-mdx-bundler-rehype-prism-plus
+```
+
+Npm install library for use
+
+* gray-matter
+* mdx-bundler
+* rehype-prism-plus
+
+```bash
+npm i gray-matter mdx-bundler rehype-prism-plus
+```
+
+Npm install tailwindcss for Next.js
+
+* [Install Tailwind CSS with Next.js](https://tailwindcss.com/docs/guides/nextjs)
+ขั้นตอนติดตั้งตามตัวอย่างได้เลยครับ
+
+Create .mdx file for blog
+* blog-fubruary-2023.mdx
+
+Create page for Blog
+
+index.js
+```js
+import fs from 'fs';
+import { bundleMDX } from 'mdx-bundler';
+import {  useMemo } from 'react';
+import {getMDXComponent} from 'mdx-bundler/client'
+import rehypePrismPlus from 'rehype-prism-plus'
+import matter from 'gray-matter';
+
+
+export async function  getStaticProps() {
+  const fileName = fs.readFileSync('data/blog-fubruary-2023.mdx','utf-8');
+
+  const { data: frontmatter } = matter(fileName);
+
+  const { code } =  await bundleMDX({
+    source: fileName,
+  mdxOptions(options) {
+    options.remarkPlugins = [...(options.remarkPlugins ?? []), ]
+    options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypePrismPlus]
+    return options
+  },
+    
+  })
+
+  return {
+    props: {
+      frontmatter ,
+      code ,
+    }
+  };
+}
+
+
+export default function Home({code,frontmatter}) {
+  const Component = useMemo (() => getMDXComponent(code),[code]);
+  return (
+    <div className='prose  mx-auto mt-12 md:mt-36 max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0 '>
+      <h1 className='text-sky-500  eng text-center text-2xl'>{frontmatter.title}</h1>
+      <article>
+       <Component/>
+     </article>
+    </div>
+  )
+}
+
+
+```
+อธิบายเเบบที่ผมเข้าใจ คือ ผมจะนำไฟลล์ .mdx มาเเปลงเป็น Html หลังจากนั้นก็ใส่ CSS 
+```js
+export async function  getStaticProps() {
+  const fileName = fs.readFileSync('data/blog-fubruary-2023.mdx','utf-8');
+
+  const { data: frontmatter } = matter(fileName);
+
+  const { code } =  await bundleMDX({
+    source: fileName,
+  mdxOptions(options) {
+    options.remarkPlugins = [...(options.remarkPlugins ?? []), ]
+    options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypePrismPlus]
+    return options
+  },
+    
+  })
+
+  return {
+    props: {
+      frontmatter ,
+      code ,
+    }
+  };
+}
+```
+Function นี้เป็นตัวนำข้อมูลในไฟลล์ .mdx มาเเปลงเป็น Html โดยผมใช้ bundleMDX แปลงข้อมูลเเละเพิ่ม options rehypePrismPlus ในการเเยก Html เป็น Tag ต่าง 
+
+```js
+export default function Home({code,frontmatter}) {
+  const Component = useMemo (() => getMDXComponent(code),[code]);
+  return (
+    <div className='prose  mx-auto mt-12 md:mt-36 max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0 '>
+      <h1 className='text-sky-500  eng text-center text-2xl'>{frontmatter.title}</h1>
+      <article>
+       <Component/>
+     </article>
+    </div>
+  )
+}
+```
+ส่วนนี้เป็นส่วนที่ผมเเสดงข้อมูล Html ที่ได้มาสร้างเป็น  Component เเละนำมาเเสดงครับ
+
+* หมายเหตุ
+ก่อนหน้านี้ผมเคยใช้ markdown-it-prism , next/mdx เเล้วมันได้ผลไม่ตรงตามที่ต้องการ เลยลองศึกษาหาตัวอย่างผ่าน google 
+
+
+
+
+
+
+
+
+
+
+
+
